@@ -22,7 +22,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { FilterUserDto } from './dto/filter-user.dto';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { storageConfig } from 'helpers/config';
+
 import { extname, parse } from 'path';
 import { Roles } from 'src/auth/roles.decorator';
 
@@ -74,27 +74,27 @@ export class UserController {
   @Roles('admin')
   @Post('upload-avatar')
   @UseGuards(AuthGuard)
-  @UseInterceptors(
-    FileInterceptor('avatar', {
-      storage: storageConfig('avatar'),
-      fileFilter: (req, file, cb) => {
-        const ext = extname(file.originalname);
-        const allowedExtArr = ['.jpg', '.png', '.jpeg'];
-        if (!allowedExtArr.includes(ext)) {
-          req.fileValidationError = `Wrong extension type. Accepted file ext are: ${allowedExtArr.toString()}`;
-          cb(null, false);
-        } else {
-          const fileSize = parseInt(req.headers['content-length']);
-          if (fileSize > 1024 * 1024 * 5) {
-            req.fileValidationError = 'File size should be less than 5MB';
-            cb(null, false);
-          } else {
-            cb(null, true);
-          }
-        }
-      },
-    }),
-  )
+  // @UseInterceptors(
+  //   FileInterceptor('avatar', {
+  //     storage: storageConfig('avatar'),
+  //     fileFilter: (req, file, cb) => {
+  //       const ext = extname(file.originalname);
+  //       const allowedExtArr = ['.jpg', '.png', '.jpeg'];
+  //       if (!allowedExtArr.includes(ext)) {
+  //         req.fileValidationError = `Wrong extension type. Accepted file ext are: ${allowedExtArr.toString()}`;
+  //         cb(null, false);
+  //       } else {
+  //         const fileSize = parseInt(req.headers['content-length']);
+  //         if (fileSize > 1024 * 1024 * 5) {
+  //           req.fileValidationError = 'File size should be less than 5MB';
+  //           cb(null, false);
+  //         } else {
+  //           cb(null, true);
+  //         }
+  //       }
+  //     },
+  //   }),
+  // )
   uploadAvatar(@Req() req: any, @UploadedFile() file: Express.Multer.File) {
     // console.log('uploadAvatar', file);
     // console.log('user data', req.user_data);

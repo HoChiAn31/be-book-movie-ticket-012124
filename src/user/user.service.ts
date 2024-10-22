@@ -6,7 +6,6 @@ import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FilterUserDto } from './dto/filter-user.dto';
-import { UUID } from 'crypto';
 @Injectable()
 export class UserService {
   constructor(
