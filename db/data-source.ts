@@ -11,8 +11,10 @@ export const dataSourceOptions: DataSourceOptions = {
   username: process.env.MYSQL_USER || 'root', // Use environment variable or default to 'root'
   password: process.env.MYSQL_PASSWORD || 'root', // Use environment variable or default to 'root'
   database: process.env.MYSQL_DATABASE_NAME || 'be-movie-21824', // Use environment variable or default to 'be-movie-21824'
-  entities: ['dist/**/*.entity.js'],
-  migrations: ['dist/db/migrations/*.js'],
+  // entities: ['dist/**/*.entity.js'],
+  entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+  // migrations: ['dist/db/migrations/*.js'],
+  migrations: [__dirname + '/../db/migrations/*{.ts,.js}'],
   synchronize: false,
 };
 
