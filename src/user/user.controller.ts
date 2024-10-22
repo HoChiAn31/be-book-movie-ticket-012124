@@ -15,9 +15,8 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { promises } from 'dns';
 import { User } from './entities/user.entity';
-import { AuthGuard } from '../auth/auth.guard';
+import { AuthGuard } from './../auth/auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FilterUserDto } from './dto/filter-user.dto';
