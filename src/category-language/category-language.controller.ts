@@ -16,7 +16,6 @@ import { CategoryLanguage } from './entites/category-language.entity';
 import { FilterCategoryLanguageDto } from './dto/filter-catetory-language.dto';
 import { CategoryLanguageService } from './category-language.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { storageConfig } from 'helpers/config';
 import { extname } from 'path';
 import { UpdateCategoryLanguageDto } from './dto/update-category-language.dto';
 import { ApiTags } from '@nestjs/swagger';
@@ -56,27 +55,27 @@ export class CategoryLanguageController {
     return this.categoryLanguageService.delete(id);
   }
   @Post('upload-avatar')
-  @UseInterceptors(
-    FileInterceptor('flag', {
-      storage: storageConfig('flag'),
-      fileFilter: (req, file, cb) => {
-        const ext = extname(file.originalname);
-        const allowedExtArr = ['.jpg', '.png', '.jpeg'];
-        if (!allowedExtArr.includes(ext)) {
-          req.fileValidationError = `Wrong extension type. Accepted file ext are: ${allowedExtArr.toString()}`;
-          cb(null, false);
-        } else {
-          const fileSize = parseInt(req.headers['content-length']);
-          if (fileSize > 1024 * 1024 * 5) {
-            req.fileValidationError = 'File size should be less than 5MB';
-            cb(null, false);
-          } else {
-            cb(null, true);
-          }
-        }
-      },
-    }),
-  )
+  // @UseInterceptors(
+  //   FileInterceptor('flag', {
+  //     storage: storageConfig('flag'),
+  //     fileFilter: (req, file, cb) => {
+  //       const ext = extname(file.originalname);
+  //       const allowedExtArr = ['.jpg', '.png', '.jpeg'];
+  //       if (!allowedExtArr.includes(ext)) {
+  //         req.fileValidationError = `Wrong extension type. Accepted file ext are: ${allowedExtArr.toString()}`;
+  //         cb(null, false);
+  //       } else {
+  //         const fileSize = parseInt(req.headers['content-length']);
+  //         if (fileSize > 1024 * 1024 * 5) {
+  //           req.fileValidationError = 'File size should be less than 5MB';
+  //           cb(null, false);
+  //         } else {
+  //           cb(null, true);
+  //         }
+  //       }
+  //     },
+  //   }),
+  // )
   uploadAvatar(@Req() req: any, @UploadedFile() file: Express.Multer.File) {
     // console.log('uploadAvatar', file);
     // console.log('user data', req.user_data);
