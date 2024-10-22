@@ -8,7 +8,7 @@ import { FilterFoodDinksDto } from './dto/filter-food-drinks.dto';
 import { EntityManager } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { FoodDrinkTranslations } from 'src/food-drink-translations/entites/food-drink-translations.entity';
-import { bucket } from 'src/config/firebase.config';
+import { bucket } from './../config/firebase.config';
 
 @Injectable()
 export class FoodDrinksService {
