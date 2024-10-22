@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  nestjs:
+    build: .
+    container_name: nestjs_app
+    ports:
+      - '5000:5000'
+    environment:
+      - DATABASE_HOST=${MYSQL_HOST}
+      - DATABASE_PORT=${MYSQL_PORT}
+      - DATABASE_USERNAME=${MYSQL_USER}
+      - DATABASE_PASSWORD=${MYSQL_PASSWORD}
+      - DATABASE_NAME=${MYSQL_DATABASE_NAME}
+    env_file: ./.env
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+
+volumes:
+  db-data:
