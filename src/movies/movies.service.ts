@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Movie } from './entities/movies.entity';
 import { EntityManager, Like, Repository } from 'typeorm';
@@ -8,8 +8,11 @@ import { MovieTranslations } from 'src/movie-translations/entities/movie-transla
 import { MovieGenres } from 'src/movie-genres/entities/movie-genres.entity';
 import { FilterMoviesDto } from './dto/filter-movie.dto';
 import { In } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
+
 import { UpdateResult } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
+import { bucket } from 'src/config/firebase.config';
 
 @Injectable()
 export class MoviesService {
@@ -169,6 +172,27 @@ export class MoviesService {
     });
   }
 
+  async uploadImage(file: Express.Multer.File): Promise<string> {
+    try {
+      const folder = 'movies';
+      const fileName = `${uuidv4()}-${file.originalname}`;
+      const filePath = `${folder}/${fileName}`;
+      const fileUpload = bucket.file(filePath);
+
+      await fileUpload.save(file.buffer, {
+        metadata: {
+          contentType: file.mimetype,
+        },
+      });
+
+      const fileUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(filePath)}?alt=media`;
+
+      return fileUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      throw new InternalServerErrorException('Image upload failed');
+    }
+  }
   async update(
     id: string,
     updateMovieDto: UpdateMoviesDto,
@@ -215,7 +239,33 @@ export class MoviesService {
       },
     );
   }
-  async remove(id: string) {
-    return this.moviesRepository.delete(id);
+  async remove(id: string): Promise<void> {
+    const movie = await this.moviesRepository.findOne({ where: { id } });
+
+    if (!movie) {
+      throw new NotFoundException('Movie not found');
+    }
+
+    // If a poster URL exists, delete the image from Firebase
+    if (movie.poster_url) {
+      try {
+        const imagePath = decodeURIComponent(
+          new URL(movie.poster_url).pathname.split('/o/')[1],
+        );
+        const file = bucket.file(imagePath);
+
+        const [exists] = await file.exists();
+        if (exists) {
+          await file.delete();
+          // console.log(`Successfully deleted image: ${imagePath}`);
+        }
+      } catch (error) {
+        console.error('Error deleting image from Firebase:', error);
+        throw new InternalServerErrorException('Failed to delete image');
+      }
+    }
+
+    // Delete the movie record
+    await this.moviesRepository.delete({ id });
   }
 }

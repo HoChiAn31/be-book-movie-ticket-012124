@@ -37,21 +37,13 @@ export class FoodDrinksController {
     return this.foodDrinksService.findOne(id);
   }
 
-  // @Post()
-  // createFoodDrinkWithTranslation(
-  //   @Body() createFoodDrinkDto: CreateFoodDrinkDto,
-  // ): Promise<FoodDrinks> {
-  //   return this.foodDrinksService.createFoodDrinkWithTranslation(
-  //     createFoodDrinkDto,
-  //   );
-  // }
   @Post()
   @UseInterceptors(FileInterceptor('image'))
   async createFoodDrink(
     @UploadedFile() file: Express.Multer.File,
     @Body() createFoodDrinkDto: CreateFoodDrinkDto,
   ) {
-    // Check if the file exists
+    // // Check if the file exists
     // console.log('file', file);
     // console.log('createFoodDrinkDto', createFoodDrinkDto);
 
@@ -72,7 +64,11 @@ export class FoodDrinksController {
     // Upload the image and get the URL
     const imageUrl = await this.foodDrinksService.uploadImage(file);
     createFoodDrinkDto.image = imageUrl; // Assign the image URL to the DTO
-
+    const parsedTranslations = createFoodDrinkDto.translations.map(
+      (translation) =>
+        typeof translation === 'string' ? JSON.parse(translation) : translation,
+    );
+    createFoodDrinkDto.translations = parsedTranslations;
     return this.foodDrinksService.createFoodDrinkWithTranslation(
       createFoodDrinkDto,
     );

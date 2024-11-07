@@ -21,9 +21,12 @@ export class RoomsController {
     return this.roomsService.findOne(id);
   }
 
-  @Post()
-  create(@Body() createRoomsDto: CreateRoomsDto): Promise<Room> {
-    return this.roomsService.create(createRoomsDto);
+  @Get('branch/:branchId')
+  async findByBranch(
+    @Param('branchId') branchId: string,
+    @Query() query: FilterRoomsDto,
+  ) {
+    return this.roomsService.findByBranch(branchId, query);
   }
 
   @Put(':id')

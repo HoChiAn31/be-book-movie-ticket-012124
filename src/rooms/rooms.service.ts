@@ -79,6 +79,55 @@ export class RoomsService {
     return room;
   }
 
+  async findByBranch(branchId: string, query: FilterRoomsDto): Promise<any> {
+    const itemsPerPage = Number(query.items_per_page) || 10;
+    const page = Number(query.page) || 1;
+    const skip = (page - 1) * itemsPerPage;
+    const search = query.search || '';
+
+    const [res, total] = await this.roomRepository.findAndCount({
+      where: {
+        branch: { id: branchId },
+        name: Like('%' + search + '%'),
+      },
+      order: { createdAt: 'DESC' },
+      take: itemsPerPage,
+      skip: skip,
+      relations: {
+        branch: {
+          translations: true,
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        screeningType: true,
+        totalSeats: true,
+        createdAt: true,
+        updatedAt: true,
+        branch: {
+          id: true,
+          phone: true,
+          translations: {
+            id: true,
+            languageCode: true,
+            name: true,
+          },
+        },
+      },
+    });
+    const lastPage = Math.ceil(total / itemsPerPage);
+    const nextPage = page + 1 > lastPage ? null : page + 1;
+    const prevPage = page - 1 < 1 ? null : page - 1;
+    return {
+      data: res,
+      total,
+      currentPage: page,
+      lastPage,
+      nextPage,
+      prevPage,
+    };
+  }
   async update(
     id: string,
     updateRoomsDto: Partial<UpdateRoomsDto>,
