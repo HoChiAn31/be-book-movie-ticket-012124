@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { FoodDrinks } from './entities/food-drinks.entity';
 import { Like, Repository, UpdateResult } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -149,53 +153,44 @@ export class FoodDrinksService {
     );
   }
 
-  async remove(id: string): Promise<void> {
-    await this.foodDrinksRepository.delete({ id });
-  }
+  // async uploadImage(file: Express.Multer.File): Promise<string> {
+  //   const folder = 'food-drink';
+  //   const fileName = `${uuidv4()}-${file.originalname}`;
+  //   const filePath = `${folder}/${fileName}`;
+  //   const fileUpload = bucket.file(filePath);
 
-  // async createFoodDrinkWithTranslation(
-  //   createFoodDrinkDto: CreateFoodDrinkDto,
-  // ): Promise<FoodDrinks> {
-  //   return await this.foodDrinksRepository.manager.transaction(
-  //     async (transactionalEntityManager: EntityManager) => {
-  //       const foodDrink = this.foodDrinksRepository.create({
-  //         price: createFoodDrinkDto.price.toString(),
-  //         image: createFoodDrinkDto.image,
-  //       });
-
-  //       const savedFoodDrink = await transactionalEntityManager.save(foodDrink);
-
-  //       const foodDrinkTranslations = createFoodDrinkDto.translations.map(
-  //         (translation) => ({
-  //           ...translation,
-  //           foodDrink: savedFoodDrink,
-  //         }),
-  //       );
-
-  //       await transactionalEntityManager.save(foodDrinkTranslations);
-
-  //       return savedFoodDrink;
+  //   await fileUpload.save(file.buffer, {
+  //     metadata: {
+  //       contentType: file.mimetype,
   //     },
-  //   );
+  //   });
+
+  //   // Lấy URL công khai của file đã upload
+  //   const fileUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(fileName)}?alt=media`;
+
+  //   return fileUrl;
   // }
   async uploadImage(file: Express.Multer.File): Promise<string> {
-    const folder = 'food-drink';
-    const fileName = `${uuidv4()}-${file.originalname}`;
-    const filePath = `${folder}/${fileName}`;
-    const fileUpload = bucket.file(filePath);
+    try {
+      const folder = 'food-drink';
+      const fileName = `${uuidv4()}-${file.originalname}`;
+      const filePath = `${folder}/${fileName}`;
+      const fileUpload = bucket.file(filePath);
 
-    await fileUpload.save(file.buffer, {
-      metadata: {
-        contentType: file.mimetype,
-      },
-    });
+      await fileUpload.save(file.buffer, {
+        metadata: {
+          contentType: file.mimetype,
+        },
+      });
 
-    // Lấy URL công khai của file đã upload
-    const fileUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(fileName)}?alt=media`;
+      const fileUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(filePath)}?alt=media`;
 
-    return fileUrl;
+      return fileUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      throw new InternalServerErrorException('Image upload failed');
+    }
   }
-
   async createFoodDrinkWithTranslation(
     createFoodDrinkDto: CreateFoodDrinkDto,
   ): Promise<FoodDrinks> {
@@ -255,5 +250,39 @@ export class FoodDrinksService {
         return savedFoodDrink;
       },
     );
+  }
+
+  async remove(id: string): Promise<void> {
+    // Find the FoodDrink item first
+    const foodDrink = await this.foodDrinksRepository.findOne({
+      where: { id },
+    });
+
+    if (!foodDrink) {
+      throw new NotFoundException('Food or Drink not found');
+    }
+
+    // If an image exists, delete it from Firebase
+    if (foodDrink.image) {
+      try {
+        const imagePath = decodeURIComponent(
+          new URL(foodDrink.image).pathname.split('/o/')[1],
+        );
+        const file = bucket.file(imagePath);
+
+        // Check if the file exists before deleting (optional)
+        const [exists] = await file.exists();
+        if (exists) {
+          await file.delete();
+          // console.log(`Successfully deleted image: ${imagePath}`);
+        }
+      } catch (error) {
+        console.error('Error deleting image from Firebase:', error);
+        // You can choose to throw an error here if image deletion failure should stop the process
+      }
+    }
+
+    // Delete the FoodDrink item
+    await this.foodDrinksRepository.delete({ id });
   }
 }

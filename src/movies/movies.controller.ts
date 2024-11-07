@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -7,12 +8,16 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { CreateMoviesDto } from './dto/create-movies.dto';
 import { UpdateMoviesDto } from './dto/update-movies.dto';
 import { FilterMoviesDto } from './dto/filter-movie.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { extname } from 'path';
 
 @ApiTags('Movies')
 @Controller('movies')
@@ -20,7 +25,31 @@ export class MoviesController {
   constructor(private readonly moviesService: MoviesService) {}
 
   @Post()
-  create(@Body() createMovieDto: CreateMoviesDto) {
+  @UseInterceptors(FileInterceptor('poster_url'))
+  async create(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() createMovieDto: CreateMoviesDto,
+  ) {
+    if (!file) {
+      throw new BadRequestException('Image file is required');
+    }
+
+    // Validate file type
+    const validImageTypes = ['.jpg', '.jpeg', '.png', '.webp']; // Add more types as needed
+    const fileExtension = extname(file.originalname).toLowerCase();
+
+    if (!validImageTypes.includes(fileExtension)) {
+      throw new BadRequestException(
+        'Only .jpg, .jpeg, and .png files are allowed',
+      );
+    }
+
+    const posterUrl = await this.moviesService.uploadImage(file);
+    createMovieDto.poster_url = posterUrl;
+    const parsedTranslations = createMovieDto.translations.map((translation) =>
+      typeof translation === 'string' ? JSON.parse(translation) : translation,
+    );
+    createMovieDto.translations = parsedTranslations;
     return this.moviesService.create(createMovieDto);
   }
 
