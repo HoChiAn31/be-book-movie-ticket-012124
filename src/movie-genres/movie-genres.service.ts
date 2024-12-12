@@ -74,23 +74,25 @@ export class MovieGenresService {
   async findOne(id: string): Promise<MovieGenres> {
     return await this.movieGenresRepository.findOne({
       where: { id },
-      // select: {
-      //   id: true,
-      //   numberCategory: true,
-      //   movieGenreTranslation: {
-      //     id: true,
-      //     name: true,
-      //     description: true,
-      //     categoryLanguage: {
-      //       id: true,
-      //       languageCode: true,
-      //     },
-      //   },
-      //   createdAt: true,
-      //   updatedAt: true,
-      // },
       relations: {
-        movieGenreTranslation: true,
+        movieGenreTranslation: {
+          categoryLanguage: true,
+        },
+      },
+      select: {
+        id: true,
+        numberCategory: true,
+        movieGenreTranslation: {
+          id: true,
+          name: true,
+          description: true,
+          categoryLanguage: {
+            // id: true,
+            languageCode: true,
+          },
+        },
+        // createdAt: true,
+        // updatedAt: true,
       },
     });
   }

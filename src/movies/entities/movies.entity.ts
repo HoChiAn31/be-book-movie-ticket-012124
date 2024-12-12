@@ -1,3 +1,4 @@
+import { Comments } from 'src/comments/entities/comments.entity';
 import { MovieGenres } from 'src/movie-genres/entities/movie-genres.entity';
 import { MovieTranslations } from 'src/movie-translations/entities/movie-translations.entity';
 import { ShowTimes } from 'src/show-times/entities/show-times.entity';
@@ -69,4 +70,7 @@ export class Movie {
 
   @OneToMany(() => ShowTimes, (showTime) => showTime.movie)
   showTimes: ShowTimes[];
+
+  @OneToMany(() => Comments, (comment) => comment.movie)
+  comments: Comments[];
 }

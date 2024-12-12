@@ -35,9 +35,9 @@ export class UserController {
   @Roles('admin')
   @UseGuards(AuthGuard)
   @Get()
-  @ApiQuery({ name: 'page' })
-  @ApiQuery({ name: 'items_per_page' })
-  @ApiQuery({ name: 'search' })
+  // @ApiQuery({ name: 'page' })
+  // @ApiQuery({ name: 'items_per_page' })
+  // @ApiQuery({ name: 'search' })
   findAll(@Query() query: FilterUserDto): Promise<User[]> {
     console.log(query);
     return this.userService.findAll(query);

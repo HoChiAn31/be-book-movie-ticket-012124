@@ -44,6 +44,9 @@ import { MovieGenresService } from './movie-genres/movie-genres.service';
 import { MovieGenresController } from './movie-genres/movie-genres.controller';
 import { MovieGenreTranslstionsModule } from './movie-genres-translations/movie-genres-traslations.module';
 import { MovieGenresTranslationService } from './movie-genres-translations/movie-genres-traslations.service';
+import { SeatsGateway } from './seat-maps/seats.gateway';
+import { CommentsModule } from './comments/comments.module';
+
 @Module({
   imports: [
     TypeOrmModule.forRoot(dataSourceOptions),
@@ -71,6 +74,7 @@ import { MovieGenresTranslationService } from './movie-genres-translations/movie
     TicketsModule,
     BookingDetailsModule,
     MovieGenreTranslstionsModule,
+    CommentsModule,
   ],
   controllers: [
     AppController,
@@ -90,6 +94,7 @@ import { MovieGenresTranslationService } from './movie-genres-translations/movie
     MovieTranslationsService,
     MovieGenresTranslationService,
     MovieGenresService,
+    SeatsGateway,
   ],
 })
 export class AppModule {}
