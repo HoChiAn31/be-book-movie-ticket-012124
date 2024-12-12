@@ -60,7 +60,9 @@ export class PromotionsService {
       take: items_per_page,
       skip: skip,
       relations: {
-        translations: true,
+        translations: {
+          categoryLanguage: true,
+        },
       },
       select: {
         id: true,
@@ -79,6 +81,9 @@ export class PromotionsService {
           id: true,
           name: true,
           description: true,
+          categoryLanguage: {
+            languageCode: true,
+          },
         },
       },
     });

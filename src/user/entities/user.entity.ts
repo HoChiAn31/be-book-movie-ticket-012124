@@ -1,5 +1,6 @@
 import { UUID } from 'crypto';
 import { Bookings } from 'src/bookings/entites/bookings.entity';
+import { Comments } from 'src/comments/entities/comments.entity';
 import { Payment } from 'src/payment/entities/payment.entity';
 import {
   Entity,
@@ -53,4 +54,7 @@ export class User {
 
   @Column({ nullable: true })
   resetPasswordExpires: Date;
+
+  @OneToMany(() => Comments, (comment) => comment.user)
+  comments: Comments[];
 }
