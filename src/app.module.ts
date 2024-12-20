@@ -45,7 +45,9 @@ import { MovieGenresController } from './movie-genres/movie-genres.controller';
 import { MovieGenreTranslstionsModule } from './movie-genres-translations/movie-genres-traslations.module';
 import { MovieGenresTranslationService } from './movie-genres-translations/movie-genres-traslations.service';
 import { SeatsGateway } from './seat-maps/seats.gateway';
+import { ShowTimeSchedulesModule } from './show-time-schedules/show-time-schedules.module';
 import { CommentsModule } from './comments/comments.module';
+import { StripeModule } from './stripe/stripe.module';
 
 @Module({
   imports: [
@@ -74,7 +76,9 @@ import { CommentsModule } from './comments/comments.module';
     TicketsModule,
     BookingDetailsModule,
     MovieGenreTranslstionsModule,
+    ShowTimeSchedulesModule,
     CommentsModule,
+    StripeModule,
   ],
   controllers: [
     AppController,

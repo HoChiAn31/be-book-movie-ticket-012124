@@ -1,6 +1,7 @@
 import { Comments } from 'src/comments/entities/comments.entity';
 import { MovieGenres } from 'src/movie-genres/entities/movie-genres.entity';
 import { MovieTranslations } from 'src/movie-translations/entities/movie-translations.entity';
+import { ShowTimeSchedules } from 'src/show-time-schedules/entities/show-time-schedules.entity';
 import { ShowTimes } from 'src/show-times/entities/show-times.entity';
 import {
   Column,
@@ -46,6 +47,9 @@ export class Movie {
   @Column()
   trailer_url: string;
 
+  @Column({ default: 0 })
+  numberOfTicketsSold: number;
+
   @Column()
   is_showing: boolean;
 
@@ -71,6 +75,11 @@ export class Movie {
   @OneToMany(() => ShowTimes, (showTime) => showTime.movie)
   showTimes: ShowTimes[];
 
-  @OneToMany(() => Comments, (comment) => comment.movie)
+  @OneToMany(() => ShowTimeSchedules, (showTime) => showTime.movie)
+  showTimeSchedules: ShowTimes[];
+
+  @OneToMany(() => Comments, (comment) => comment.movie, {
+    onDelete: 'CASCADE',
+  })
   comments: Comments[];
 }

@@ -29,6 +29,7 @@ export class SeatMapsService {
       take: itemsPerPage,
       skip: skip,
       relations: {
+        room: true,
         translations: {
           categoryLanguage: true,
         },

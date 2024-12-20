@@ -6,7 +6,7 @@ export class CreateFoodDrinkDto {
   price: string;
 
   image: string;
-
+  soldQuantity: 0;
   translations: {
     categoryLanguageId: string;
     name: string;

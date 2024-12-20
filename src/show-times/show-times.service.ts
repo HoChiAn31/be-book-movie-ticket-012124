@@ -102,6 +102,8 @@ export class ShowTimesService {
       select: {
         id: true,
         price: true,
+        show_time_start: true,
+        show_time_end: true,
         movie: {
           id: true,
           translations: {

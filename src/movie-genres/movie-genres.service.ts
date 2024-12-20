@@ -108,6 +108,64 @@ export class MovieGenresService {
     return this.movieGenresRepository.delete({ id });
   }
 
+  async updateMovieGenreWithTranslation(
+    id: string,
+    updateMovieGenreDto: UpdateMovieGenreDto,
+  ): Promise<MovieGenres> {
+    return await this.movieGenresRepository.manager.transaction(
+      async (transactionalEntityManager: EntityManager) => {
+        // Fetch the MovieGenre entity by ID
+        const existingMovieGenre = await this.movieGenresRepository.findOne({
+          where: { id },
+        });
+        if (!existingMovieGenre) {
+          throw new Error('MovieGenre not found');
+        }
+
+        // Update the MovieGenre entity with the new numberCategory
+        existingMovieGenre.numberCategory = Number(
+          updateMovieGenreDto.numberCategory,
+        );
+
+        // Save the updated MovieGenre entity
+        const updatedMovieGenre =
+          await transactionalEntityManager.save(existingMovieGenre);
+
+        // Update MovieGenreTranslations entities
+        for (const translation of updateMovieGenreDto.movieGenreTranslation) {
+          const existingTranslation =
+            await this.movieGenreTranslationsRepository.findOne({
+              where: {
+                movieGenres: { id: id },
+                categoryLanguage: { id: translation.categoryLanguageId },
+              },
+            });
+          console.log('existingTranslation', existingTranslation);
+          if (existingTranslation) {
+            // Update the existing translation
+            existingTranslation.name = translation.name;
+            existingTranslation.description = translation.description;
+            await transactionalEntityManager.save(existingTranslation);
+          } else {
+            // If the translation doesn't exist, create a new one
+            const newTranslation = this.movieGenreTranslationsRepository.create(
+              {
+                ...translation,
+                movieGenres: updatedMovieGenre,
+                categoryLanguage: { id: translation.categoryLanguageId },
+              },
+            );
+            console.log(newTranslation);
+            await transactionalEntityManager.save(newTranslation);
+          }
+        }
+
+        // Return the updated MovieGenre entity
+        return updatedMovieGenre;
+      },
+    );
+  }
+
   async createMovieGenreWithTranslation(
     createMovieGenreDto: CreateMovieGenreDto,
   ): Promise<MovieGenres> {

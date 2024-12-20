@@ -34,6 +34,7 @@ export class RoomsService {
         branch: {
           translations: true,
         },
+        seatMaps: true,
       },
       select: {
         id: true,

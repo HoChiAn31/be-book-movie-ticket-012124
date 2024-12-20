@@ -43,10 +43,6 @@ export class FoodDrinksController {
     @UploadedFile() file: Express.Multer.File,
     @Body() createFoodDrinkDto: CreateFoodDrinkDto,
   ) {
-    // // Check if the file exists
-    // console.log('file', file);
-    // console.log('createFoodDrinkDto', createFoodDrinkDto);
-
     if (!file) {
       throw new BadRequestException('Image file is required');
     }
