@@ -51,24 +51,24 @@ export class MoviesService {
         }
 
         // // Fetch and link movie genres
-        // if (createMovieDto.genres && createMovieDto.genres.length > 0) {
-        //   const genreIds = createMovieDto.genres.map((genre) => genre.id);
-        //   const movieGenres = await transactionalEntityManager.findBy(
-        //     MovieGenres,
-        //     {
-        //       id: In(genreIds),
-        //     },
-        //   );
+        if (createMovieDto.genres && createMovieDto.genres.length > 0) {
+          const genreIds = createMovieDto.genres.map((genre) => genre.id);
+          const movieGenres = await transactionalEntityManager.findBy(
+            MovieGenres,
+            {
+              id: In(genreIds),
+            },
+          );
 
-        //   if (movieGenres.length !== genreIds.length) {
-        //     throw new Error('One or more genre IDs are invalid');
-        //   }
+          if (movieGenres.length !== genreIds.length) {
+            throw new Error('One or more genre IDs are invalid');
+          }
 
-        //   savedMovie.genres = movieGenres;
-        //   await transactionalEntityManager.save(Movie, savedMovie);
-        // }
+          savedMovie.genres = movieGenres;
+          await transactionalEntityManager.save(Movie, savedMovie);
+        }
 
-        // Fetch the saved movie with all relations
+        // Fetch the saved movie with all relations.
         const fullMovie = await transactionalEntityManager.findOne(Movie, {
           where: { id: savedMovie.id },
           relations: ['translations', 'genres'],
@@ -98,6 +98,16 @@ export class MoviesService {
         translations: {
           categoryLanguage: true,
         },
+        genres: true,
+        showTimes: {
+          room: {
+            branch: {
+              translations: {
+                categoryLanguage: true,
+              },
+            },
+          },
+        },
       },
       select: {
         id: true,
@@ -110,6 +120,7 @@ export class MoviesService {
         rating: true,
         poster_url: true,
         trailer_url: true,
+        numberOfTicketsSold: true,
         translations: {
           id: true,
           name: true,
@@ -119,7 +130,6 @@ export class MoviesService {
             languageCode: true,
           },
         },
-
         createdAt: true,
         updatedAt: true,
       },
@@ -144,6 +154,23 @@ export class MoviesService {
         translations: {
           categoryLanguage: true,
         },
+        genres: {
+          movieGenreTranslation: true,
+        },
+
+        showTimes: {
+          room: {
+            branch: {
+              translations: {
+                categoryLanguage: true,
+              },
+            },
+            seatMaps: true,
+          },
+        },
+        comments: {
+          user: true,
+        },
       },
       select: {
         id: true,
@@ -156,6 +183,7 @@ export class MoviesService {
         rating: true,
         poster_url: true,
         trailer_url: true,
+        numberOfTicketsSold: true,
         translations: {
           id: true,
           name: true,
@@ -163,6 +191,60 @@ export class MoviesService {
           categoryLanguage: {
             id: true,
             languageCode: true,
+          },
+        },
+        genres: {
+          id: true,
+          movieGenreTranslation: {
+            id: true,
+            name: true,
+            categoryLanguage: {
+              languageCode: true,
+            },
+          },
+        },
+        showTimes: {
+          id: true,
+          show_time_start: true,
+          show_time_end: true,
+          price: true,
+          room: {
+            id: true,
+            name: true,
+            screeningType: true,
+            totalSeats: true,
+            branch: {
+              id: true,
+              email: true,
+              translations: {
+                id: true,
+                name: true,
+                languageCode: true,
+                address: true,
+                categoryLanguage: {
+                  id: true,
+                },
+              },
+            },
+            seatMaps: {
+              id: true,
+              row: true,
+              count: true,
+            },
+          },
+        },
+        comments: {
+          id: true,
+          comment: true,
+          rating: true,
+          createdAt: true,
+          user: {
+            id: true,
+
+            firstName: true,
+            lastName: true,
+            avatar: true,
+            email: true,
           },
         },
 
@@ -220,9 +302,7 @@ export class MoviesService {
         }
 
         if (updateMovieDto.genres) {
-          const genreIds = updateMovieDto.genres.map(
-            (genre) => genre.categoryLanguageId,
-          );
+          const genreIds = updateMovieDto.genres.map((genre) => genre.id);
           const movieGenres = await transactionalEntityManager.findBy(
             MovieGenres,
             {

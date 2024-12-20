@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -65,6 +66,13 @@ export class MoviesController {
 
   @Put(':id')
   update(@Param('id') id: string, @Body() updateMovieDto: UpdateMoviesDto) {
+    return this.moviesService.update(id, updateMovieDto);
+  }
+  @Patch(':id')
+  updatePatch(
+    @Param('id') id: string,
+    @Body() updateMovieDto: UpdateMoviesDto,
+  ) {
     return this.moviesService.update(id, updateMovieDto);
   }
 

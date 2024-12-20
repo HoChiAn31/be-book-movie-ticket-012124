@@ -18,6 +18,6 @@ import { ConfigModule } from '@nestjs/config';
   ],
   controllers: [FoodDrinkTranslationsController],
   providers: [FoodDrinkTranslationsService],
-  exports: [TypeOrmModule], // Add this line
+  exports: [TypeOrmModule],
 })
 export class FoodDrinkTranslationsModule {}

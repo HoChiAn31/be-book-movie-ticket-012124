@@ -85,7 +85,10 @@ export class MovieGenresController {
     @Param('id') id: string,
     @Body() updateMovieGenreDto: UpdateMovieGenreDto,
   ) {
-    return await this.movieGenresService.update(id, updateMovieGenreDto);
+    return await this.movieGenresService.updateMovieGenreWithTranslation(
+      id,
+      updateMovieGenreDto,
+    );
   }
 
   @Delete(':id')

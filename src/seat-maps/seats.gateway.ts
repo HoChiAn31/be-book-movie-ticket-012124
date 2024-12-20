@@ -23,7 +23,7 @@ export class SeatsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleDisconnect(client: Socket) {
     console.log(`Client disconnected: ${client.id}`);
-    // Clean up user seat selections when they disconnect
+    // Clean up user seat selections when they disconnect.
     this.userSeats.delete(client.id);
   }
 
@@ -31,7 +31,7 @@ export class SeatsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleSelectSeat(client: Socket, seatLabel: string) {
     console.log(`client: ${client.id}`);
     console.log('seatLabel', seatLabel);
-    // Ensure the seat is not already selected by someone else
+    // Ensure the seat is not already selected by someone else.
     if (!this.selectedSeats.includes(seatLabel)) {
       // Add the seat to the selected seats
       this.selectedSeats.push(seatLabel);

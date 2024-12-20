@@ -16,9 +16,5 @@ export class UpdateMoviesDto {
     description: string;
   }[];
 
-  genres: {
-    name: string;
-    description: string;
-    categoryLanguageId: string;
-  }[];
+  genres: { id: string }[];
 }
