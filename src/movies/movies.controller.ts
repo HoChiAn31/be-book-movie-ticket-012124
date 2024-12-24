@@ -59,6 +59,11 @@ export class MoviesController {
     return this.moviesService.findAll(query);
   }
 
+  @Get('/showtimes')
+  findAllShowTimes(@Query() query: FilterMoviesDto) {
+    return this.moviesService.findAllShowTimes(query);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.moviesService.findOne(id);
