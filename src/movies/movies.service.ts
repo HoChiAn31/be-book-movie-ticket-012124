@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Movie } from './entities/movies.entity';
-import { EntityManager, Like, Repository } from 'typeorm';
+import { Between, EntityManager, Like, Repository } from 'typeorm';
 import { CreateMoviesDto } from './dto/create-movies.dto';
 import { UpdateMoviesDto } from './dto/update-movies.dto';
 import { MovieTranslations } from 'src/movie-translations/entities/movie-translations.entity';
@@ -84,11 +84,15 @@ export class MoviesService {
     const page = Number(query.page) || 1;
     const skip = (page - 1) * items_per_page;
     const search = query.search || '';
+    const languageCode = query.languageCode || 'vi';
 
     const [res, total] = await this.moviesRepository.findAndCount({
       where: {
         translations: {
           name: Like('%' + search + '%'),
+          categoryLanguage: {
+            languageCode: languageCode, // Sử dụng giá trị từ client
+          },
         },
       },
       order: { createdAt: 'DESC' },
@@ -147,6 +151,138 @@ export class MoviesService {
     };
   }
 
+  async findAllShowTimes(query: FilterMoviesDto): Promise<any> {
+    const items_per_page = Number(query.items_per_page) || 10;
+    const page = Number(query.page) || 1;
+    const skip = (page - 1) * items_per_page;
+    const search = query.search || '';
+    const branchId = query.branchId || '';
+    const movie_id = query.movie_id || '';
+    // const show_time_start = query.show_time_start || '';
+
+    // // Tính toán ngày hôm nay (giới hạn trong phạm vi ngày)
+    // const today = new Date();
+    // today.setHours(0, 0, 0, 0); // Đặt giờ về 00:00:00
+
+    // const tomorrow = new Date(today);
+    // tomorrow.setDate(today.getDate() + 1); // Ngày mai (để so sánh)
+
+    const whereCondition: any = {
+      translations: {
+        name: Like('%' + search + '%'),
+      },
+      id: movie_id ? movie_id : undefined,
+      // showTimes: {
+      //   show_time_start: Between(today.toISOString(), tomorrow.toISOString()),
+      // },
+    };
+
+    // if (show_time_start) {
+    //   whereCondition.showTimes.show_time_start = Between(
+    //     today.toISOString(),
+    //     tomorrow.toISOString(),
+    //   );
+    // }
+    if (branchId) {
+      whereCondition.showTimes = {
+        room: {
+          branch: {
+            id: branchId, // Filter by branch ID
+          },
+        },
+      };
+    }
+    const [res, total] = await this.moviesRepository.findAndCount({
+      where: whereCondition,
+      order: { createdAt: 'DESC' },
+      take: items_per_page,
+      skip: skip,
+      relations: {
+        translations: {
+          categoryLanguage: true,
+        },
+        genres: {
+          movieGenreTranslation: {
+            categoryLanguage: true,
+          },
+        },
+
+        showTimes: {
+          room: {
+            branch: {
+              translations: true,
+            },
+          },
+        },
+      },
+      select: {
+        id: true,
+        director: true,
+        // cast: true,
+        releaseDate: true,
+        duration: true,
+        language: true,
+        country: true,
+        // rating: true,
+        poster_url: true,
+        // trailer_url: true,
+        // numberOfTicketsSold: true,
+        translations: {
+          id: true,
+          name: true,
+          categoryLanguage: {
+            languageCode: true,
+          },
+        },
+        genres: {
+          id: true,
+          movieGenreTranslation: {
+            id: true,
+            name: true,
+            categoryLanguage: {
+              languageCode: true,
+            },
+          },
+        },
+        showTimes: {
+          id: true,
+          show_time_start: true,
+          show_time_end: true,
+          room: {
+            id: true,
+            name: true,
+            branch: {
+              id: true,
+              translations: {
+                id: true,
+                name: true,
+                languageCode: true,
+                address: true,
+              },
+            },
+            seatMaps: {
+              id: true,
+              row: true,
+              count: true,
+            },
+          },
+        },
+        createdAt: true,
+        // updatedAt: true,
+      },
+    });
+    const lastPage = Math.ceil(total / items_per_page);
+    const nextPage = page + 1 > lastPage ? null : page + 1;
+    const prevPage = page - 1 < 1 ? null : page - 1;
+    return {
+      data: res,
+      total,
+      currentPage: page,
+      lastPage,
+      nextPage,
+      prevPage,
+    };
+  }
   async findOne(id: string) {
     return this.moviesRepository.findOne({
       where: { id },

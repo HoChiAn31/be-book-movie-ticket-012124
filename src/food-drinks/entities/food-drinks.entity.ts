@@ -21,6 +21,9 @@ export class FoodDrinks {
   @Column()
   image: string;
 
+  @Column()
+  type: string;
+
   @Column({ default: 0 })
   soldQuantity: number;
 

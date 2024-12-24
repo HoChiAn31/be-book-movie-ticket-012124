@@ -11,6 +11,11 @@ import { ApiTags } from '@nestjs/swagger';
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}
 
+  @Post()
+  async create(@Body() createSeatMapDto: CreateRoomsDto) {
+    return this.roomsService.create(createSeatMapDto);
+  }
+
   @Get()
   findAll(@Query() query: FilterRoomsDto): Promise<any> {
     return this.roomsService.findAll(query);

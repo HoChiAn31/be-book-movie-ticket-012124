@@ -51,6 +51,7 @@ export class FoodDrinksService {
         id: true,
         price: true,
         image: true,
+        type: true,
         soldQuantity: true,
         translations: {
           id: true,
