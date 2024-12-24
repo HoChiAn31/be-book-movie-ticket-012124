@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Movie } from './entities/movies.entity';
-import { Between, EntityManager, Like, Repository } from 'typeorm';
+import { Between, EntityManager, Equal, Like, Repository } from 'typeorm';
 import { CreateMoviesDto } from './dto/create-movies.dto';
 import { UpdateMoviesDto } from './dto/update-movies.dto';
 import { MovieTranslations } from 'src/movie-translations/entities/movie-translations.entity';
@@ -88,10 +88,28 @@ export class MoviesService {
 
     const [res, total] = await this.moviesRepository.findAndCount({
       where: {
+        // translations: {
+        //   name: Like('%' + search + '%'),
+        //   categoryLanguage: {
+        //     languageCode: languageCode, // Sử dụng giá trị từ client
+        //   },
+        // },
+        // genres: {
+        //   movieGenreTranslation: {
+        //     categoryLanguage: languageCode,
+        //   },
+        // },
         translations: {
           name: Like('%' + search + '%'),
           categoryLanguage: {
-            languageCode: languageCode, // Sử dụng giá trị từ client
+            languageCode: Equal(languageCode), // Use Equal operator for nested property
+          },
+        },
+        genres: {
+          movieGenreTranslation: {
+            categoryLanguage: {
+              languageCode: Equal(languageCode),
+            },
           },
         },
       },
@@ -102,7 +120,11 @@ export class MoviesService {
         translations: {
           categoryLanguage: true,
         },
-        genres: true,
+        genres: {
+          movieGenreTranslation: {
+            categoryLanguage: true,
+          },
+        },
         showTimes: {
           room: {
             branch: {
@@ -132,6 +154,16 @@ export class MoviesService {
           categoryLanguage: {
             id: true,
             languageCode: true,
+          },
+        },
+        genres: {
+          id: true,
+          movieGenreTranslation: {
+            id: true,
+            name: true,
+            categoryLanguage: {
+              languageCode: true,
+            },
           },
         },
         createdAt: true,
