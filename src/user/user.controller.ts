@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  InternalServerErrorException,
   Param,
   Patch,
   Post,
@@ -43,7 +44,7 @@ export class UserController {
     return this.userService.findAll(query);
   }
 
-  @Roles('admin')
+  // @Roles('admin')
   @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string): Promise<User> {
@@ -57,12 +58,18 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
-  @Roles('admin')
-  @UseGuards(AuthGuard)
-  @Put(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto);
-  }
+  // // @Roles('admin')
+  // @UseGuards(AuthGuard)
+  // @Put(':id')
+  // update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  //   return this.userService.update(id, updateUserDto);
+  // }
+
+  // @UseGuards(AuthGuard)
+  // @Patch(':id')
+  // updateP(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  //   return this.userService.update(id, updateUserDto);
+  // }
 
   @Roles('admin')
   @UseGuards(AuthGuard)
@@ -71,7 +78,7 @@ export class UserController {
     return this.userService.delete(id);
   }
 
-  @Roles('admin')
+  // @Roles('admin')
   @Post('upload-avatar')
   @UseGuards(AuthGuard)
   // @UseInterceptors(
@@ -95,18 +102,81 @@ export class UserController {
   //     },
   //   }),
   // )
-  uploadAvatar(@Req() req: any, @UploadedFile() file: Express.Multer.File) {
-    // console.log('uploadAvatar', file);
-    // console.log('user data', req.user_data);
-    if (req.fileValidationError) {
-      throw new BadRequestException(req.fileValidationError);
+  @Patch(':id')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(FileInterceptor('avatar')) // For avatar upload if included
+  async updateUserPartial(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @Req() req: any,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    // Validate file and proceed to upload if present
+    if (file) {
+      try {
+        // Upload image to Firebase and get the URL
+        const avatarUrl = await this.userService.uploadImage(file);
+
+        // Include avatarUrl in the updateUserDto
+        updateUserDto.avatar = avatarUrl;
+      } catch (error) {
+        throw new InternalServerErrorException('Error uploading avatar');
+      }
     }
+
+    // Update user data (without avatar if not uploaded)
+    return this.userService.update(id, updateUserDto);
+  }
+
+  @Put(':id')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(FileInterceptor('avatar')) // For avatar upload if included
+  async updateUserFull(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @Req() req: any,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
     if (!file) {
-      throw new BadRequestException('File is required');
+      throw new BadRequestException('Image file is required');
     }
-    this.userService.updateAvatar(
-      req.user_data.id,
-      file.destination + '/' + file.filename,
-    );
+    const validImageTypes = ['.jpg', '.jpeg', '.png', '.webp']; // Add more types as needed
+    const fileExtension = extname(file.originalname).toLowerCase();
+
+    if (!validImageTypes.includes(fileExtension)) {
+      throw new BadRequestException(
+        'Only .jpg, .jpeg, and .png files are allowed',
+      );
+    }
+    const avatarUrl = await this.userService.uploadImage(file);
+    updateUserDto.avatar = avatarUrl;
+    // Validate file and proceed to upload if present
+
+    // Update user data (without avatar if not uploaded)
+    return this.userService.update(id, updateUserDto);
+  }
+
+  // uploadAvatar(@Req() req: any, @UploadedFile() file: Express.Multer.File) {
+  //   // console.log('uploadAvatar', file);
+  //   // console.log('user data', req.user_data);
+  //   if (req.fileValidationError) {
+  //     throw new BadRequestException(req.fileValidationError);
+  //   }
+  //   if (!file) {
+  //     throw new BadRequestException('File is required');
+  //   }
+  //   this.userService.updateAvatar(
+  //     req.user_data.id,
+  //     file.destination + '/' + file.filename,
+  //   );
+  // }
+  @UseGuards(AuthGuard)
+  @Post(':id/check-password')
+  async checkPassword(
+    @Param('id') id: string,
+    @Body() body: { password: string }, // Accepting the password in the body
+  ): Promise<{ isValid: boolean }> {
+    const isValid = await this.userService.checkPassword(id, body.password);
+    return { isValid };
   }
 }

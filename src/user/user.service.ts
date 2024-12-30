@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { DeleteResult, Like, Repository, UpdateResult } from 'typeorm';
@@ -6,6 +6,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FilterUserDto } from './dto/filter-user.dto';
+import { bucket } from 'src/config/firebase.config';
+import { v4 as uuidv4 } from 'uuid';
 @Injectable()
 export class UserService {
   constructor(
@@ -75,5 +77,39 @@ export class UserService {
 
   async updateAvatar(id: number, avatar: string): Promise<UpdateResult> {
     return await this.userRepository.update(id, { avatar });
+  }
+
+  async uploadImage(file: Express.Multer.File): Promise<string> {
+    try {
+      const folder = 'avatars'; // Set your desired folder
+      const fileName = `${uuidv4()}-${file.originalname}`;
+      const filePath = `${folder}/${fileName}`;
+      const fileUpload = bucket.file(filePath);
+
+      // Upload the image to Firebase Storage
+      await fileUpload.save(file.buffer, {
+        metadata: {
+          contentType: file.mimetype,
+        },
+      });
+
+      // Generate the public URL of the uploaded image
+      const fileUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(filePath)}?alt=media`;
+
+      return fileUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      throw new InternalServerErrorException('Image upload failed');
+    }
+  }
+  async checkPassword(id: string, password: string): Promise<boolean> {
+    const user = await this.userRepository.findOneBy({ id });
+
+    if (!user) {
+      throw new InternalServerErrorException('User not found');
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    return isMatch;
   }
 }

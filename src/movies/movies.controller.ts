@@ -47,10 +47,17 @@ export class MoviesController {
 
     const posterUrl = await this.moviesService.uploadImage(file);
     createMovieDto.poster_url = posterUrl;
+
     const parsedTranslations = createMovieDto.translations.map((translation) =>
       typeof translation === 'string' ? JSON.parse(translation) : translation,
     );
     createMovieDto.translations = parsedTranslations;
+
+    const parsedGenres = createMovieDto.genres.map((genre) =>
+      typeof genre === 'string' ? JSON.parse(genre) : genre,
+    );
+    createMovieDto.genres = parsedGenres;
+
     return this.moviesService.create(createMovieDto);
   }
 

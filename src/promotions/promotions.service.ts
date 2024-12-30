@@ -1,5 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { DeleteResult, EntityManager, Repository, UpdateResult } from 'typeorm';
+import {
+  DeleteResult,
+  EntityManager,
+  Equal,
+  Repository,
+  UpdateResult,
+} from 'typeorm';
 import { Promotions } from './entities/promotions.entity';
 import { CreatePromotionsDto } from './dto/create-promotions.dto';
 import { FilterPromotionsDto } from './dto/filter-promotions.dto';
@@ -51,11 +57,17 @@ export class PromotionsService {
     const page = Number(query.page) || 1;
     const skip = (page - 1) * items_per_page;
     const search = query.search || '';
+    const languageCode = query.languageCode || 'vi';
 
     const [res, total] = await this.promotionsRepository.findAndCount({
-      //   where: {
-      //     name: Like('%' + search + '%'),
-      //   },
+      where: {
+        // name: Like('%' + search + '%'),
+        translations: {
+          categoryLanguage: {
+            languageCode: Equal(languageCode),
+          },
+        },
+      },
       order: { createdAt: 'DESC' },
       take: items_per_page,
       skip: skip,
@@ -103,12 +115,6 @@ export class PromotionsService {
     return await this.promotionsRepository.findOne({ where: { id } });
   }
 
-  // async update(
-  //   id: string,
-  //   updatePromotionsDto: UpdatePromotionsDto,
-  // ): Promise<UpdateResult> {
-  //   return await this.promotionsRepository.update(id, updatePromotionsDto);
-  // }
   async update(
     id: string,
     updatePromotions: UpdatePromotionsDto,
