@@ -32,10 +32,12 @@ export class MovieTranslations {
     (categoryLanguage) => categoryLanguage.movieTranslations,
     { onDelete: 'CASCADE' },
   )
+  @JoinColumn({ name: 'categoryLanguageId' })
   categoryLanguage: CategoryLanguage;
 
   @ManyToOne(() => Movie, (movie) => movie.translations, {
     onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'movieId' })
   movie: Movie;
 }

@@ -8,10 +8,11 @@ import { MoviesService } from './movies.service';
 import { ConfigModule } from '@nestjs/config';
 import { CategoryLanguage } from 'src/category-language/entites/category-language.entity';
 import { MovieGenres } from 'src/movie-genres/entities/movie-genres.entity';
+import { MovieTranslations } from 'src/movie-translations/entities/movie-translations.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Movie, MovieGenres]),
+    TypeOrmModule.forFeature([Movie, MovieGenres, MovieTranslations]),
     MovieTranslationsModule,
     MovieGenresModule,
   ],

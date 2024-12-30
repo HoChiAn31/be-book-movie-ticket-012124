@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -35,6 +36,14 @@ export class ShowTimesController {
 
   @Put(':id')
   update(
+    @Param('id') id: string,
+    @Body() updateShowTimesDto: UpdateShowTimesDto,
+  ) {
+    return this.showTimesService.update(id, updateShowTimesDto);
+  }
+
+  @Patch(':id')
+  updateP(
     @Param('id') id: string,
     @Body() updateShowTimesDto: UpdateShowTimesDto,
   ) {

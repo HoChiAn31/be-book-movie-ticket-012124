@@ -38,19 +38,22 @@ export class MoviesService {
           createMovieDto.translations.length > 0
         ) {
           const movieTranslations = createMovieDto.translations.map(
-            (translation) => ({
-              ...translation,
-              movie: savedMovie,
-              categoryLanguage: { id: translation.categoryLanguageId },
-            }),
+            (translation) => {
+              return this.movieTranslationsRepository.create({
+                ...translation,
+                movie: savedMovie,
+                categoryLanguage: { id: translation.categoryLanguageId },
+              });
+            },
           );
+          console.log();
           await transactionalEntityManager.save(
             MovieTranslations,
             movieTranslations,
           );
         }
 
-        // // Fetch and link movie genres
+        // Fetch and link movie genres
         if (createMovieDto.genres && createMovieDto.genres.length > 0) {
           const genreIds = createMovieDto.genres.map((genre) => genre.id);
           const movieGenres = await transactionalEntityManager.findBy(
@@ -96,7 +99,7 @@ export class MoviesService {
         // },
         // genres: {
         //   movieGenreTranslation: {
-        //     categoryLanguage: languageCode,
+        //     categoryLanguage: languageCode,.
         //   },
         // },
         translations: {
@@ -125,6 +128,7 @@ export class MoviesService {
             categoryLanguage: true,
           },
         },
+
         showTimes: {
           room: {
             branch: {
@@ -233,12 +237,12 @@ export class MoviesService {
         translations: {
           categoryLanguage: true,
         },
-        genres: {
-          movieGenreTranslation: {
-            categoryLanguage: true,
-          },
-        },
-
+        // genres: {
+        //   movieGenreTranslation: {
+        //     categoryLanguage: true,
+        //   },
+        // },
+        genres: true,
         showTimes: {
           room: {
             branch: {
@@ -266,16 +270,16 @@ export class MoviesService {
             languageCode: true,
           },
         },
-        genres: {
-          id: true,
-          movieGenreTranslation: {
-            id: true,
-            name: true,
-            categoryLanguage: {
-              languageCode: true,
-            },
-          },
-        },
+        // genres: {
+        //   id: true,
+        //   movieGenreTranslation: {
+        //     id: true,
+        //     name: true,
+        //     categoryLanguage: {
+        //       languageCode: true,
+        //     },
+        //   },
+        // },
         showTimes: {
           id: true,
           show_time_start: true,

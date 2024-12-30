@@ -154,10 +154,69 @@ export class ShowTimesService {
     };
   }
 
-  async findOne(id: string): Promise<ShowTimes> {
-    return await this.showTimesRepository.findOne({ where: { id } });
-  }
+  async findOne(id: string): Promise<ShowTimes | null> {
+    const showTime = await this.showTimesRepository.findOne({
+      where: { id },
+      relations: {
+        movie: {
+          translations: {
+            categoryLanguage: true,
+          },
+        },
+        room: {
+          branch: {
+            translations: {
+              categoryLanguage: true,
+            },
+          },
+        },
+        tickets: true,
+      },
+      select: {
+        id: true,
+        price: true,
+        show_time_start: true,
+        show_time_end: true,
+        movie: {
+          id: true,
+          duration: true,
+          translations: {
+            id: true,
+            name: true,
+            categoryLanguage: {
+              languageCode: true,
+            },
+          },
+        },
+        room: {
+          id: true,
+          name: true,
+          totalSeats: true,
+          branch: {
+            id: true,
+            phone: true,
+            translations: {
+              id: true,
+              languageCode: true,
+              name: true,
+              categoryLanguage: {
+                languageCode: true,
+              },
+            },
+          },
+        },
+        tickets: {
+          id: true,
+          ticketType: true,
+          ticketPrice: true,
+        },
+        created_at: true,
+        updated_at: true,
+      },
+    });
 
+    return showTime || null;
+  }
   async update(
     id: string,
     updateShowTimesDto: UpdateShowTimesDto,

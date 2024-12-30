@@ -40,6 +40,7 @@ export class MovieGenresService {
         movieGenreTranslation: {
           categoryLanguage: true,
         },
+        movies: true,
       },
       select: {
         id: true,

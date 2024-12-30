@@ -10,6 +10,8 @@ export class UpdateUserDto {
   @ApiProperty()
   status: number;
 
+  avatar: string;
+
   @ApiProperty()
   password: string;
 

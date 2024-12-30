@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -31,6 +32,11 @@ export class MovieGenres {
   )
   movieGenreTranslation: MovieGenreTranslations[];
 
-  @ManyToOne(() => Movie, (movie) => movie.genres)
-  movies: Movie;
+  // @ManyToOne(() => Movie, (movie) => movie.genres)
+  // movies: Movie;
+
+  @ManyToMany(() => Movie, (movie) => movie.genres, {
+    onDelete: 'CASCADE', // Xóa thể loại không làm mất liên kết trong bảng trung gian
+  })
+  movies: Movie[];
 }

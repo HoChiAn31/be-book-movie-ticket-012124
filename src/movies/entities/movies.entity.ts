@@ -59,7 +59,17 @@ export class Movie {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => MovieGenres, (genre) => genre.movies)
+  // @OneToMany(() => MovieGenres, (genre) => genre.movies)
+  // genres: MovieGenres[];
+
+  @ManyToMany(() => MovieGenres, (genre) => genre.movies, {
+    cascade: true,
+  })
+  @JoinTable({
+    name: 'movie_genres_movies', // Tên bảng trung gian
+    joinColumn: { name: 'movie_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'genre_id', referencedColumnName: 'id' },
+  })
   genres: MovieGenres[];
 
   @OneToMany(
