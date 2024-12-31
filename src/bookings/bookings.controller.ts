@@ -43,4 +43,14 @@ export class BookingsController {
   remove(@Param('id') id: string) {
     return this.bookingsService.remove(id);
   }
+
+  @Post('create-booking')
+  async createBooking(@Body() bookingData: any) {
+    try {
+      const result = await this.bookingsService.createBooking(bookingData);
+      return result;
+    } catch (error) {
+      throw new Error('Booking creation failed: ' + error.message);
+    }
+  }
 }

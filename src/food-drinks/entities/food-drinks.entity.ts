@@ -1,4 +1,5 @@
 import { Bookings } from 'src/bookings/entites/bookings.entity';
+import { FoodDrinkBooks } from 'src/food-drink-books/entities/foodDrink-books.entity';
 import { FoodDrinkTranslations } from 'src/food-drink-translations/entites/food-drink-translations.entity';
 import {
   Column,
@@ -39,6 +40,9 @@ export class FoodDrinks {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => Bookings, (booking) => booking.foodDrinks)
-  booking: Bookings;
+  // @ManyToOne(() => Bookings, (booking) => booking.foodDrinks)
+  // booking: Bookings;
+
+  @OneToMany(() => FoodDrinkBooks, (foodDrink) => foodDrink.foodDrinks)
+  foodDrink: FoodDrinkBooks[];
 }

@@ -1,5 +1,5 @@
 export class CreatePaymentDto {
-  bookingId: string;
+  // bookingId: string;
   amount: number;
   paymentMethod: string;
   paymentAmount: number;

@@ -1,3 +1,4 @@
+import { Bookings } from 'src/bookings/entites/bookings.entity';
 import { Branch } from 'src/branch/entities/branch.entity';
 import { Movie } from 'src/movies/entities/movies.entity';
 import { Room } from 'src/rooms/entities/rooms.entity';
@@ -43,6 +44,6 @@ export class ShowTimes {
   })
   movie: Movie;
 
-  @OneToMany(() => Tickets, (tickets) => tickets.showTimes)
-  tickets: Tickets[];
+  @OneToMany(() => Bookings, (booking) => booking.showTimes)
+  bookings: Bookings[];
 }

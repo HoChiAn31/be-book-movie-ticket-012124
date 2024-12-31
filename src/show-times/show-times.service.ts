@@ -97,7 +97,6 @@ export class ShowTimesService {
             },
           },
         },
-        tickets: true,
       },
       select: {
         id: true,
@@ -131,11 +130,6 @@ export class ShowTimesService {
               },
             },
           },
-        },
-        tickets: {
-          id: true,
-          ticketType: true,
-          ticketPrice: true,
         },
         created_at: true,
         updated_at: true,
@@ -170,7 +164,6 @@ export class ShowTimesService {
             },
           },
         },
-        tickets: true,
       },
       select: {
         id: true,
@@ -205,11 +198,7 @@ export class ShowTimesService {
             },
           },
         },
-        tickets: {
-          id: true,
-          ticketType: true,
-          ticketPrice: true,
-        },
+
         created_at: true,
         updated_at: true,
       },

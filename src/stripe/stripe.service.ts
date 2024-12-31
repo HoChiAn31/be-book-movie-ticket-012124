@@ -22,7 +22,13 @@ export class StripeService {
         currency,
         payment_method_types: ['card'],
       });
-      return { clientSecret: paymentIntent.client_secret };
+      const successUrl = `https://your-website.com/payment-success?payment_intent=${paymentIntent.id}`;
+      const failureUrl = `https://your-website.com/payment-failure?payment_intent=${paymentIntent.id}`;
+      return {
+        clientSecret: paymentIntent.client_secret,
+        successUrl,
+        failureUrl,
+      };
     } catch (error) {
       throw new HttpException('Payment failed', HttpStatus.BAD_REQUEST);
     }

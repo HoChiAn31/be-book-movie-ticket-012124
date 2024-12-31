@@ -48,6 +48,7 @@ import { SeatsGateway } from './seat-maps/seats.gateway';
 import { ShowTimeSchedulesModule } from './show-time-schedules/show-time-schedules.module';
 import { CommentsModule } from './comments/comments.module';
 import { StripeModule } from './stripe/stripe.module';
+import { FoodDrinkBooksModule } from './food-drink-books/food-drink-books.module';
 
 @Module({
   imports: [
@@ -79,6 +80,7 @@ import { StripeModule } from './stripe/stripe.module';
     ShowTimeSchedulesModule,
     CommentsModule,
     StripeModule,
+    FoodDrinkBooksModule,
   ],
   controllers: [
     AppController,

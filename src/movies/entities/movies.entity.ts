@@ -1,3 +1,4 @@
+import { Bookings } from 'src/bookings/entites/bookings.entity';
 import { Comments } from 'src/comments/entities/comments.entity';
 import { MovieGenres } from 'src/movie-genres/entities/movie-genres.entity';
 import { MovieTranslations } from 'src/movie-translations/entities/movie-translations.entity';
@@ -92,4 +93,7 @@ export class Movie {
     onDelete: 'CASCADE',
   })
   comments: Comments[];
+
+  @OneToMany(() => Bookings, (bookings) => bookings.movie)
+  bookings: Bookings[];
 }
