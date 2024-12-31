@@ -1,29 +1,28 @@
 import { BookingDetails } from 'src/booking-details/entities/booking-details.entity';
-import { ShowTimes } from 'src/show-times/entities/show-times.entity';
+import { Bookings } from 'src/bookings/entites/bookings.entity';
+import { FoodDrinks } from 'src/food-drinks/entities/food-drinks.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
   ManyToOne,
-  OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
-export class Tickets {
+export class FoodDrinkBooks {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  ticketType: string;
+  @ManyToOne(() => FoodDrinks, (foodDrinks) => foodDrinks.foodDrink)
+  foodDrinks: FoodDrinks;
 
   @Column()
   quantity: number;
 
   @Column()
-  ticketPrice: number;
+  price: number;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -31,7 +30,7 @@ export class Tickets {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => BookingDetails, (bookingDetails) => bookingDetails.tickets, {
+  @ManyToOne(() => BookingDetails, (book) => book.foodDrinks, {
     onDelete: 'CASCADE',
   })
   bookingDetails: BookingDetails;

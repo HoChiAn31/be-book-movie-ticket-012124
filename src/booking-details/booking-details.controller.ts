@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -33,6 +34,14 @@ export class BookingDetailsController {
   }
   @Put(':id')
   async update(
+    @Param('id') id: string,
+    @Body() updateBookingDetailsDto: UpdateBookingDetailsDto,
+  ): Promise<UpdateResult> {
+    return this.bookingDetailsService.update(id, updateBookingDetailsDto);
+  }
+
+  @Patch(':id')
+  async updateP(
     @Param('id') id: string,
     @Body() updateBookingDetailsDto: UpdateBookingDetailsDto,
   ): Promise<UpdateResult> {

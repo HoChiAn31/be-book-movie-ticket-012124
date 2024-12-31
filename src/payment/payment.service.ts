@@ -18,17 +18,17 @@ export class PaymentService {
 
   async create(createPaymentDto: CreatePaymentDto): Promise<Payment> {
     // Find the booking
-    const booking = await this.bookingRepository.findOneBy({
-      id: createPaymentDto.bookingId,
-    });
-    if (!booking) {
-      throw new NotFoundException('Booking not found');
-    }
+    // const booking = await this.bookingRepository.findOneBy({
+    //   id: createPaymentDto.bookingId,
+    // });
+    // if (!booking) {
+    //   throw new NotFoundException('Booking not found');
+    // }
 
     // Create the payment and link it to the booking
     const payment = this.paymentRepository.create({
       ...createPaymentDto,
-      booking: booking,
+      // booking: booking,
     });
 
     return this.paymentRepository.save(payment);

@@ -194,6 +194,8 @@ export class MoviesService {
     const search = query.search || '';
     const branchId = query.branchId || '';
     const movie_id = query.movie_id || '';
+    const languageCode = query.languageCode || 'vi';
+
     // const show_time_start = query.show_time_start || '';
 
     // // Tính toán ngày hôm nay (giới hạn trong phạm vi ngày)
@@ -206,6 +208,16 @@ export class MoviesService {
     const whereCondition: any = {
       translations: {
         name: Like('%' + search + '%'),
+        categoryLanguage: {
+          languageCode: Equal(languageCode), // Use Equal operator for nested property
+        },
+      },
+      genres: {
+        movieGenreTranslation: {
+          categoryLanguage: {
+            languageCode: Equal(languageCode), // Use Equal operator for nested property
+          },
+        },
       },
       id: movie_id ? movie_id : undefined,
       // showTimes: {
@@ -242,7 +254,11 @@ export class MoviesService {
         //     categoryLanguage: true,
         //   },
         // },
-        genres: true,
+        genres: {
+          movieGenreTranslation: {
+            categoryLanguage: true,
+          },
+        },
         showTimes: {
           room: {
             branch: {

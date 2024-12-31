@@ -132,7 +132,7 @@ export class MovieGenresService {
         const updatedMovieGenre =
           await transactionalEntityManager.save(existingMovieGenre);
 
-        // Update MovieGenreTranslations entities
+        // Update MovieGenreTranslations entities.
         for (const translation of updateMovieGenreDto.movieGenreTranslation) {
           const existingTranslation =
             await this.movieGenreTranslationsRepository.findOne({

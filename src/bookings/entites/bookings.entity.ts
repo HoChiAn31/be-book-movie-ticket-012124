@@ -1,6 +1,9 @@
 import { BookingDetails } from 'src/booking-details/entities/booking-details.entity';
+import { FoodDrinkBooks } from 'src/food-drink-books/entities/foodDrink-books.entity';
 import { FoodDrinks } from 'src/food-drinks/entities/food-drinks.entity';
+import { Movie } from 'src/movies/entities/movies.entity';
 import { Payment } from 'src/payment/entities/payment.entity';
+import { ShowTimes } from 'src/show-times/entities/show-times.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
@@ -31,11 +34,10 @@ export class Bookings {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => BookingDetails, (bookingDetails) => bookingDetails.booking)
-  bookingDetails: BookingDetails[];
-
-  @OneToMany(() => FoodDrinks, (foodDrinks) => foodDrinks.booking)
-  foodDrinks: FoodDrinks[];
+  @OneToOne(() => BookingDetails, (bookingDetails) => bookingDetails.booking, {
+    onDelete: 'CASCADE',
+  })
+  bookingDetails: BookingDetails;
 
   @ManyToOne(() => User, (user) => user.bookings)
   user: User;
@@ -43,4 +45,10 @@ export class Bookings {
   @OneToOne(() => Payment, (payment) => payment.booking)
   @JoinColumn()
   payment: Payment;
+
+  @ManyToOne(() => ShowTimes, (showtime) => showtime.bookings)
+  showTimes: ShowTimes;
+
+  @ManyToOne(() => Movie, (movie) => movie.bookings)
+  movie: Movie;
 }

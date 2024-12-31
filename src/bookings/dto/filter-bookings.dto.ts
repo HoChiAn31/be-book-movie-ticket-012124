@@ -6,4 +6,6 @@ export class FilterBookingsDto {
   items_per_page: string;
 
   search: string;
+
+  languageCode: string;
 }

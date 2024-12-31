@@ -1,9 +1,12 @@
 import { Bookings } from 'src/bookings/entites/bookings.entity';
+import { FoodDrinkBooks } from 'src/food-drink-books/entities/foodDrink-books.entity';
+import { Room } from 'src/rooms/entities/rooms.entity';
 import { Tickets } from 'src/tickets/entities/tickets.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   OneToOne,
@@ -16,14 +19,8 @@ export class BookingDetails {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  seatNumber: number;
-
-  @Column()
-  price: number;
-
-  @Column()
-  quantity: number;
+  @Column('json')
+  seatNumber: string[];
 
   @CreateDateColumn()
   createdAt: Date;
@@ -31,9 +28,18 @@ export class BookingDetails {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => Bookings, (booking) => booking.bookingDetails)
+  @OneToOne(() => Bookings, (booking) => booking.bookingDetails, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'booking_id' })
   booking: Bookings;
 
-  @ManyToOne(() => Tickets, (ticket) => ticket.bookingDetails)
-  tickets: Tickets;
+  @OneToMany(() => Tickets, (ticket) => ticket.bookingDetails)
+  tickets: Tickets[];
+
+  @ManyToOne(() => Room, (room) => room.bookingDetails)
+  room: Room;
+
+  @OneToMany(() => FoodDrinkBooks, (foodDrinks) => foodDrinks.bookingDetails)
+  foodDrinks: FoodDrinkBooks[];
 }

@@ -1,3 +1,4 @@
+import { BookingDetails } from 'src/booking-details/entities/booking-details.entity';
 import { Branch } from 'src/branch/entities/branch.entity';
 import { SeatMap } from 'src/seat-maps/entities/seat-maps.entity';
 import { ShowTimes } from 'src/show-times/entities/show-times.entity';
@@ -41,4 +42,7 @@ export class Room {
 
   @OneToMany(() => ShowTimes, (showTimes) => showTimes.room)
   showTimes: ShowTimes[];
+
+  @OneToMany(() => BookingDetails, (bookingDetail) => bookingDetail.room)
+  bookingDetails: BookingDetails[];
 }

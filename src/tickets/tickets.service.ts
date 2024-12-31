@@ -25,9 +25,9 @@ export class TicketsService {
     const keyword = query.search || '';
     const [res, total] = await this.ticketsRepository.findAndCount({
       where: [{ ticketType: Like('%' + keyword + '%') }],
-      relations: {
-        showTimes: true,
-      },
+      // relations: {
+      //   showTimes: true,
+      // },
       order: { createdAt: 'DESC' },
       take: items_per_page,
       skip: skip,
@@ -36,19 +36,20 @@ export class TicketsService {
         id: true,
         ticketPrice: true,
         ticketType: true,
+        quantity: true,
         createdAt: true,
         updatedAt: true,
-        showTimes: {
-          id: true,
-          price: true,
-          movie: {
-            id: true,
-            translations: {
-              id: true,
-              name: true,
-            },
-          },
-        },
+        // showTimes: {
+        //   id: true,
+        //   price: true,
+        //   movie: {
+        //     id: true,
+        //     translations: {
+        //       id: true,
+        //       name: true,
+        //     },.
+        //   },
+        // },
       },
     });
     const lastPage = Math.ceil(total / items_per_page);
