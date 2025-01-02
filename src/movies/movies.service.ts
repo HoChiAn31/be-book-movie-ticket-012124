@@ -13,6 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { UpdateResult } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { bucket } from 'src/config/firebase.config';
+import { FilterSelectMoviesDto } from './dto/filter-select-movie.dto';
 
 @Injectable()
 export class MoviesService {
@@ -170,6 +171,70 @@ export class MoviesService {
             },
           },
         },
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+    const lastPage = Math.ceil(total / items_per_page);
+    const nextPage = page + 1 > lastPage ? null : page + 1;
+    const prevPage = page - 1 < 1 ? null : page - 1;
+    return {
+      data: res,
+      total,
+      currentPage: page,
+      lastPage,
+      nextPage,
+      prevPage,
+    };
+  }
+  async findAllName(query: FilterMoviesDto): Promise<any> {
+    const items_per_page = Number(query.items_per_page) || 10;
+    const page = Number(query.page) || 1;
+    const skip = (page - 1) * items_per_page;
+    const search = query.search || '';
+    const languageCode = query.languageCode || 'vi';
+
+    const [res, total] = await this.moviesRepository.findAndCount({
+      where: {
+        // translations: {
+        //   name: Like('%' + search + '%'),
+        //   categoryLanguage: {
+        //     languageCode: languageCode, // Sử dụng giá trị từ client
+        //   },
+        // },
+        // genres: {
+        //   movieGenreTranslation: {
+        //     categoryLanguage: languageCode,.
+        //   },
+        // },
+        translations: {
+          name: Like('%' + search + '%'),
+          categoryLanguage: {
+            languageCode: Equal(languageCode), // Use Equal operator for nested property
+          },
+        },
+      },
+      order: { createdAt: 'DESC' },
+      take: items_per_page,
+      skip: skip,
+      relations: {
+        translations: {
+          categoryLanguage: true,
+        },
+      },
+      select: {
+        id: true,
+        duration: true,
+        translations: {
+          id: true,
+          name: true,
+          description: true,
+          categoryLanguage: {
+            id: true,
+            languageCode: true,
+          },
+        },
+
         createdAt: true,
         updatedAt: true,
       },
@@ -441,7 +506,126 @@ export class MoviesService {
       },
     });
   }
+  async findOneSelect(id: string, query: FilterSelectMoviesDto) {
+    const languageCode = query.languageCode || 'vi';
+    return this.moviesRepository.findOne({
+      where: {
+        id,
+        translations: {
+          categoryLanguage: {
+            languageCode: Equal(languageCode),
+          },
+        },
+        showTimes: {
+          room: {
+            branch: {
+              translations: {
+                languageCode: Equal(languageCode),
+              },
+            },
+            seatMaps: true,
+          },
+        },
+        // genres: {
+        //   movieGenreTranslation: {
+        //     categoryLanguage: {
+        //       languageCode: Equal(languageCode),
+        //     },
+        //   },
+        // },
+      },
+      relations: {
+        translations: {
+          categoryLanguage: true,
+        },
+        // genres: {
+        //   movieGenreTranslation: true,
+        // },
 
+        showTimes: {
+          room: {
+            branch: {
+              translations: true,
+            },
+            seatMaps: true,
+          },
+        },
+        // comments: {
+        //   user: true,
+        // },
+      },
+      select: {
+        id: true,
+        poster_url: true,
+        numberOfTicketsSold: true,
+        translations: {
+          id: true,
+          name: true,
+          description: true,
+          categoryLanguage: {
+            id: true,
+            languageCode: true,
+          },
+        },
+        // genres: {
+        //   id: true,
+        //   movieGenreTranslation: {
+        //     id: true,
+        //     name: true,
+        //     categoryLanguage: {
+        //       languageCode: true,
+        //     },
+        //   },
+        // },
+        showTimes: {
+          id: true,
+          show_time_start: true,
+          show_time_end: true,
+          price: true,
+          room: {
+            id: true,
+            name: true,
+            // screeningType: true,
+            totalSeats: true,
+            branch: {
+              id: true,
+              // email: true,
+              translations: {
+                // id: true,
+                name: true,
+                languageCode: true,
+                // address: true,
+                // categoryLanguage: {
+                //   id: true,
+                // },
+              },
+            },
+            seatMaps: {
+              id: true,
+              row: true,
+              count: true,
+            },
+          },
+        },
+        // comments: {
+        //   id: true,
+        //   comment: true,
+        //   rating: true,
+        //   createdAt: true,
+        //   user: {
+        //     id: true,
+
+        //     firstName: true,
+        //     lastName: true,
+        //     avatar: true,
+        //     email: true,
+        //   },
+        // },
+
+        createdAt: true,
+      },
+    });
+  }
   async uploadImage(file: Express.Multer.File): Promise<string> {
     try {
       const folder = 'movies';

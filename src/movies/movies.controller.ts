@@ -19,6 +19,7 @@ import { FilterMoviesDto } from './dto/filter-movie.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { extname } from 'path';
+import { FilterSelectMoviesDto } from './dto/filter-select-movie.dto';
 
 @ApiTags('Movies')
 @Controller('movies')
@@ -65,7 +66,10 @@ export class MoviesController {
   findAll(@Query() query: FilterMoviesDto) {
     return this.moviesService.findAll(query);
   }
-
+  @Get('/findAllName')
+  findAllName(@Query() query: FilterMoviesDto) {
+    return this.moviesService.findAllName(query);
+  }
   @Get('/showtimes')
   findAllShowTimes(@Query() query: FilterMoviesDto) {
     return this.moviesService.findAllShowTimes(query);
@@ -74,6 +78,14 @@ export class MoviesController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.moviesService.findOne(id);
+  }
+
+  @Get('/findOneSelect/:id')
+  findOneSelect(
+    @Param('id') id: string,
+    @Query() query: FilterSelectMoviesDto,
+  ) {
+    return this.moviesService.findOneSelect(id, query);
   }
 
   @Put(':id')

@@ -53,6 +53,7 @@ export class BookingsService {
         },
         movie: {
           translations: {
+            name: Like(`%${keyword}%`),
             categoryLanguage: {
               languageCode: Equal(languageCode),
             },
