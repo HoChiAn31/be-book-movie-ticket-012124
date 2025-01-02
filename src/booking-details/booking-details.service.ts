@@ -86,7 +86,7 @@ export class BookingDetailsService {
   }
 
   async updateP(id: string, updateBookingDetailsDto: UpdateBookingDetailsDto) {
-    // Tìm BookingDetails hiện tại
+    // Tìm BookingDetails hiện tại.
     const bookingDetails = await this.bookingDetailsRepository.findOne({
       where: { id },
       relations: ['foodDrinks', 'tickets'], // Load các mối quan hệ cần thiết
