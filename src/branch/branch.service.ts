@@ -68,7 +68,56 @@ export class BranchService {
       prevPage,
     };
   }
+  async findAllRevenue(query: FilterBranchDto): Promise<any> {
+    const items_per_page = Number(query.items_per_page) || 10;
+    const page = Number(query.page) || 1;
+    const skip = (page - 1) * items_per_page;
+    const keyword = query.search || '';
+    const [res, total] = await this.branchRepository.findAndCount({
+      where: [
+        { phone: Like('%' + keyword + '%') },
+        { translations: { name: Like('%' + keyword + '%') } },
+        // { lastName: Like('%' + keyword + '%') },
+        // { email: Like('%' + keyword + '%') },
+      ],
+      relations: {
+        translations: true,
+        rooms: {
+          bookingDetails: true,
+        },
+      },
+      order: { createdAt: 'DESC' },
+      take: items_per_page,
+      skip: skip,
 
+      select: {
+        id: true,
+        email: true,
+        phone: true,
+        createdAt: true,
+        updatedAt: true,
+        translations: {
+          id: true,
+          name: true,
+          address: true,
+          description: true,
+          languageCode: true,
+        },
+        rooms: true,
+      },
+    });
+    const lastPage = Math.ceil(total / items_per_page);
+    const nextPage = page + 1 > lastPage ? null : page + 1;
+    const prevPage = page - 1 < 1 ? null : page - 1;
+    return {
+      data: res,
+      total,
+      currentPage: page,
+      lastPage,
+      nextPage,
+      prevPage,
+    };
+  }
   async findOne(id: string): Promise<Branch> {
     return await this.branchRepository.findOne({
       where: { id },

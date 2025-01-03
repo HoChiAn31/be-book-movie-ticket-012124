@@ -187,6 +187,7 @@ export class MoviesService {
       prevPage,
     };
   }
+
   async findAllName(query: FilterMoviesDto): Promise<any> {
     const items_per_page = Number(query.items_per_page) || 10;
     const page = Number(query.page) || 1;
@@ -225,6 +226,7 @@ export class MoviesService {
       select: {
         id: true,
         duration: true,
+        releaseDate: true,
         translations: {
           id: true,
           name: true,
@@ -400,6 +402,93 @@ export class MoviesService {
       prevPage,
     };
   }
+
+  async findAllRevenue(query: FilterMoviesDto): Promise<any> {
+    const items_per_page = Number(query.items_per_page) || 20;
+    const page = Number(query.page) || 1;
+    const skip = (page - 1) * items_per_page;
+    const search = query.search || '';
+    const languageCode = query.languageCode || 'vi';
+
+    // Lấy danh sách phim và tổng số phim theo bộ lọc
+    const [movies, total] = await this.moviesRepository.findAndCount({
+      where: {
+        translations: {
+          name: Like('%' + search + '%'),
+          categoryLanguage: {
+            languageCode: Equal(languageCode),
+          },
+        },
+      },
+      skip,
+      take: items_per_page,
+
+      relations: {
+        translations: {
+          categoryLanguage: true,
+        },
+        bookings: {
+          bookingDetails: {
+            tickets: true,
+          },
+        },
+      },
+    });
+
+    // Tính tổng vé và doanh thu cho từng phim
+    const result = movies.map((movie) => {
+      const totalTicketsSold = movie.bookings.reduce((acc, booking) => {
+        return acc + booking.totalTickets;
+      }, 0);
+
+      const totalRevenue = movie.bookings.reduce((acc, booking) => {
+        return (
+          acc +
+          booking.bookingDetails.tickets.reduce((ticketAcc, ticket) => {
+            return ticketAcc + ticket.ticketPrice * ticket.quantity;
+          }, 0)
+        );
+      }, 0);
+
+      const movieName =
+        movie.translations &&
+        movie.translations.find(
+          (t) => t.categoryLanguage.languageCode === languageCode,
+        )
+          ? movie.translations.find(
+              (t) => t.categoryLanguage.languageCode === languageCode,
+            )?.name
+          : 'Unknown'; // Default value if translations is undefined or doesn't contain the desired language
+
+      return {
+        id: movie.id,
+        name: movieName,
+        totalTicketsSold,
+        totalRevenue,
+      };
+    });
+    let totalTicketsSold = 0;
+    let totalRevenue = 0;
+    movies.forEach((movie) => {
+      movie.bookings.forEach((booking) => {
+        booking.bookingDetails.tickets.forEach((ticket) => {
+          totalTicketsSold += ticket.quantity;
+          totalRevenue += ticket.ticketPrice;
+        });
+      });
+    });
+    result.sort((a, b) => b.totalRevenue - a.totalRevenue);
+    // Trả về kết quả
+    return {
+      total,
+      page,
+      items_per_page,
+      totalTicketsSold,
+      totalRevenue,
+      data: result,
+    };
+  }
+
   async findOne(id: string) {
     return this.moviesRepository.findOne({
       where: { id },

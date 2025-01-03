@@ -70,6 +70,11 @@ export class MoviesController {
   findAllName(@Query() query: FilterMoviesDto) {
     return this.moviesService.findAllName(query);
   }
+
+  @Get('/findAllRevenue')
+  findAllRevenue(@Query() query: FilterSelectMoviesDto) {
+    return this.moviesService.findAllRevenue(query);
+  }
   @Get('/showtimes')
   findAllShowTimes(@Query() query: FilterMoviesDto) {
     return this.moviesService.findAllShowTimes(query);

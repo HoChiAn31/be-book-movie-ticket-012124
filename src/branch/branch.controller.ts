@@ -29,6 +29,10 @@ export class BranchController {
     return this.branchService.findAll(query);
   }
 
+  @Get('/findAllRevenue')
+  findAllRevenue(@Query() query: FilterBranchDto): Promise<Branch[]> {
+    return this.branchService.findAllRevenue(query);
+  }
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Branch> {
     return this.branchService.findOne(id);

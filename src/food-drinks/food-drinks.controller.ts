@@ -31,7 +31,10 @@ export class FoodDrinksController {
   findAll(@Query() query: FilterFoodDinksDto): Promise<FoodDrinks[]> {
     return this.foodDrinksService.findAll(query);
   }
-
+  @Get('/revenue')
+  findAllRevenue(@Query() query: FilterFoodDinksDto): Promise<FoodDrinks[]> {
+    return this.foodDrinksService.findAllRevenue(query);
+  }
   @Get(':id')
   findOne(@Param('id') id: string): Promise<FoodDrinks> {
     return this.foodDrinksService.findOne(id);
@@ -56,7 +59,7 @@ export class FoodDrinksController {
         'Only .jpg, .jpeg, and .png files are allowed',
       );
     }
-
+    console.log(createFoodDrinkDto.type);
     // Upload the image and get the URL
     const imageUrl = await this.foodDrinksService.uploadImage(file);
     createFoodDrinkDto.image = imageUrl; // Assign the image URL to the DTO

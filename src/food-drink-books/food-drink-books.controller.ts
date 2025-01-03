@@ -7,10 +7,12 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { FoodDrinkBooksService } from './food-drink-books.service';
 import { CreateFoodDrinkBookDto } from './dto/create-foodDrink-books.dto';
 import { FoodDrinkBooks } from './entities/foodDrink-books.entity';
+import { FilterFoodDinkBooksDto } from './dto/filter-foodDrink-books.dto';
 
 @Controller('food-drink-books')
 export class FoodDrinkBooksController {
@@ -24,8 +26,8 @@ export class FoodDrinkBooksController {
   }
 
   @Get()
-  findAll(): Promise<FoodDrinkBooks[]> {
-    return this.foodDrinkBooksService.findAll();
+  findAll(@Query() query: FilterFoodDinkBooksDto): Promise<FoodDrinkBooks[]> {
+    return this.foodDrinkBooksService.findAll(query);
   }
 
   @Get(':id')

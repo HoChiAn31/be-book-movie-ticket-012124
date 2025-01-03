@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { FoodDrinks } from './entities/food-drinks.entity';
-import { Like, Repository, UpdateResult } from 'typeorm';
+import { Equal, Like, Repository, UpdateResult } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateFoodDrinkDto } from './dto/create-food-drinks.dto';
 import { UpdateFoodDrinkDto } from './dto/update-food-drinks.dto';
@@ -23,7 +23,8 @@ export class FoodDrinksService {
     private readonly foodDrinkTranslationRepository: Repository<FoodDrinkTranslations>,
   ) {}
 
-  async create(foodDrinks: FoodDrinks): Promise<FoodDrinks> {
+  async create(foodDrinks: CreateFoodDrinkDto): Promise<FoodDrinks> {
+    console.log(foodDrinks);
     return await this.foodDrinksRepository.save(foodDrinks);
   }
 
@@ -32,11 +33,15 @@ export class FoodDrinksService {
     const page = Number(query.page) || 1;
     const skip = (page - 1) * items_per_page;
     const search = query.search || '';
+    const languageCode = query.languageCode || 'vi';
 
     const [res, total] = await this.foodDrinksRepository.findAndCount({
       where: {
         translations: {
           name: Like('%' + search + '%'),
+          categoryLanguage: {
+            languageCode: Equal(languageCode),
+          },
         },
       },
       order: { createdAt: 'DESC' },
@@ -78,7 +83,144 @@ export class FoodDrinksService {
       prevPage,
     };
   }
+  async findAllRevenue(query: FilterFoodDinksDto): Promise<any> {
+    const items_per_page = Number(query.items_per_page) || 10;
+    const page = Number(query.page) || 1;
+    const skip = (page - 1) * items_per_page;
+    const search = query.search || '';
 
+    const [res, total] = await this.foodDrinksRepository.findAndCount({
+      where: {
+        translations: {
+          name: Like('%' + search + '%'),
+        },
+      },
+      order: { createdAt: 'DESC' },
+      take: items_per_page,
+      skip: skip,
+      relations: {
+        translations: {
+          categoryLanguage: true,
+        },
+        foodDrink: true,
+      },
+      select: {
+        id: true,
+        price: true,
+        image: true,
+        type: true,
+        soldQuantity: true,
+        translations: {
+          id: true,
+          name: true,
+          description: true,
+          categoryLanguage: {
+            id: true,
+            languageCode: true,
+          },
+        },
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+    const revenueData = res.map((item) => {
+      const name =
+        item.translations.find((t) => t.categoryLanguage.languageCode === 'vi')
+          ?.name || 'Unknown';
+
+      const totalQuantity = item.foodDrink.reduce(
+        (sum, fd) => sum + fd.quantity,
+        0,
+      );
+      const revenue = totalQuantity * Number(item.price);
+
+      return {
+        name,
+        quantity: totalQuantity,
+        revenue,
+      };
+    });
+    revenueData.sort((a, b) => b.revenue - a.revenue);
+    const lastPage = Math.ceil(total / items_per_page);
+    const nextPage = page + 1 > lastPage ? null : page + 1;
+    const prevPage = page - 1 < 1 ? null : page - 1;
+    return {
+      data: revenueData,
+      total,
+      currentPage: page,
+      lastPage,
+      nextPage,
+      prevPage,
+    };
+  }
+  // async findAllRevenue(query: FilterFoodDinksDto): Promise<any> {
+  //   const items_per_page = Number(query.items_per_page) || 10;
+  //   const page = Number(query.page) || 1;
+  //   const skip = (page - 1) * items_per_page;
+  //   const search = query.search || '';
+
+  //   const [res, total] = await this.foodDrinksRepository.findAndCount({
+  //     where: {
+  //       translations: {
+  //         name: Like('%' + search + '%'),
+  //       },
+  //     },
+  //     order: { createdAt: 'DESC' },
+  //     take: items_per_page,
+  //     skip: skip,
+  //     relations: {
+  //       translations: {
+  //         categoryLanguage: true,
+  //       },
+  //       foodDrink: true,
+  //     },
+  //     select: {
+  //       id: true,
+  //       price: true,
+  //       translations: {
+  //         id: true,
+  //         name: true,
+  //       },
+  //       foodDrink: {
+  //         quantity: true,
+  //       },
+  //       createdAt: true,
+  //     },
+  //   });
+
+  //   // Tính toán quantity và revenue
+  //   const revenueData = res.map((item) => {
+  //     console.log(item);
+  //     const name =
+  //       item.translations.find((t) => t.categoryLanguage.languageCode === 'vi')
+  //         ?.name || 'Unknown';
+
+  //     const totalQuantity = item.foodDrink.reduce(
+  //       (sum, fd) => sum + fd.quantity,
+  //       0,
+  //     );
+  //     const revenue = totalQuantity * Number(item.price);
+
+  //     return {
+  //       name,
+  //       quantity: totalQuantity,
+  //       revenue,
+  //     };
+  //   });
+
+  //   const lastPage = Math.ceil(total / items_per_page);
+  //   const nextPage = page + 1 > lastPage ? null : page + 1;
+  //   const prevPage = page - 1 < 1 ? null : page - 1;
+
+  //   return {
+  //     data: revenueData,
+  //     total,
+  //     currentPage: page,
+  //     lastPage,
+  //     nextPage,
+  //     prevPage,
+  //   };
+  // }
   async findOne(id: string): Promise<FoodDrinks> {
     return await this.foodDrinksRepository.findOne({
       where: { id },
@@ -202,6 +344,7 @@ export class FoodDrinksService {
         const foodDrink = this.foodDrinksRepository.create({
           price: createFoodDrinkDto.price,
           image: createFoodDrinkDto.image,
+          type: createFoodDrinkDto.type,
         });
 
         const savedFoodDrink = await transactionalEntityManager.save(foodDrink);

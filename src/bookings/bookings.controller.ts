@@ -23,12 +23,14 @@ export class BookingsController {
   create(@Body() createBookingDto: CreateBookingDto) {
     return this.bookingsService.create(createBookingDto);
   }
-
   @Get()
   findAll(@Query() query: FilterBookingsDto) {
     return this.bookingsService.findAll(query);
   }
-
+  @Get('/findAllRevenue')
+  findAllRevenue(@Query() query: FilterBookingsDto) {
+    return this.bookingsService.findAllRevenue(query);
+  }
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.bookingsService.findOne(id);
