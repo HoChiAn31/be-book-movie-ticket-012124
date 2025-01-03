@@ -12,4 +12,6 @@ export class CreateFoodDrinkDto {
     name: string;
     description: string;
   }[];
+
+  type: string;
 }

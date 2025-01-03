@@ -4,4 +4,6 @@ export class FilterFoodDinksDto {
   items_per_page: string;
 
   search: string;
+
+  languageCode: string;
 }

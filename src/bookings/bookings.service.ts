@@ -179,6 +179,127 @@ export class BookingsService {
       prevPage,
     };
   }
+
+  async findAllRevenue(query: FilterBookingsDto): Promise<any> {
+    const items_per_page = Number(query.items_per_page) || 10;
+    const page = Number(query.page) || 1;
+    const skip = (page - 1) * items_per_page;
+    const keyword = query.search || '';
+    const languageCode = query.languageCode || 'vi';
+    const [res, total] = await this.bookingsRepository.findAndCount({
+      where: {
+        bookingDetails: {
+          tickets: true,
+          foodDrinks: {
+            foodDrinks: {
+              translations: {
+                categoryLanguage: {
+                  languageCode: Equal(languageCode),
+                },
+              },
+            },
+          },
+        },
+        movie: {
+          translations: {
+            name: Like(`%${keyword}%`),
+            categoryLanguage: {
+              languageCode: Equal(languageCode),
+            },
+          },
+        },
+        showTimes: {
+          room: {
+            branch: {
+              translations: {
+                languageCode: Equal(languageCode),
+              },
+            },
+          },
+        },
+      },
+      relations: {
+        bookingDetails: {
+          tickets: true,
+        },
+        movie: {
+          translations: {
+            categoryLanguage: true,
+          },
+        },
+
+        showTimes: {
+          room: {
+            branch: {
+              translations: true,
+            },
+          },
+        },
+      },
+      order: { createdAt: 'DESC' },
+      take: items_per_page,
+      skip: skip,
+
+      select: {
+        id: true,
+        totalTickets: true,
+        // totalAmount: true,
+        createdAt: true,
+
+        bookingDetails: {
+          id: true,
+          seatNumber: true,
+          tickets: {
+            id: true,
+            ticketType: true,
+            quantity: true,
+            ticketPrice: true,
+          },
+        },
+        movie: {
+          id: true,
+          director: true,
+          poster_url: true,
+          trailer_url: true,
+          translations: {
+            name: true,
+            categoryLanguage: {
+              languageCode: true,
+            },
+          },
+        },
+        showTimes: {
+          id: true,
+          show_time_start: true,
+          show_time_end: true,
+          room: {
+            id: true,
+            name: true,
+            branch: {
+              id: true,
+              translations: {
+                id: true,
+                name: true,
+                address: true,
+                languageCode: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    const lastPage = Math.ceil(total / items_per_page);
+    const nextPage = page + 1 > lastPage ? null : page + 1;
+    const prevPage = page - 1 < 1 ? null : page - 1;
+    return {
+      data: res,
+      total,
+      currentPage: page,
+      lastPage,
+      nextPage,
+      prevPage,
+    };
+  }
   async findOne(id: string): Promise<Bookings> {
     return this.bookingsRepository.findOne({ where: { id } });
   }
